@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>蓝叠国际版管理器</title>
+  <link rel="stylesheet" href="app.css" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+</head>
+<body>
+  <div id="icons"></div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-card">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-dashboard"></use></svg>
+        </div>
+        <div>
+          <div class="brand-title">蓝叠国际版</div>
+          <div class="brand-subtitle">管理器</div>
+        </div>
+      </div>
+      <nav class="nav" aria-label="主导航">
+        <button class="nav-item active" data-view="dashboard" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-dashboard"></use></svg><span>概览</span></button>
+        <button class="nav-item" data-view="instances" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-instances"></use></svg><span>实例</span></button>
+        <button class="nav-item" data-view="device" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-device"></use></svg><span>机型</span></button>
+        <button class="nav-item" data-view="preflight" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-shield"></use></svg><span>检查</span></button>
+        <button class="nav-item" data-view="backups" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-backup"></use></svg><span>备份</span></button>
+        <button class="nav-item" data-view="settings" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-settings"></use></svg><span>设置</span></button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="status-pill"><span class="dot"></span><span id="nav-status">连接中</span></div>
+        <div class="version" id="nav-version">v1.0.0</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="page-title">概览</h1>
+          <p id="page-subtitle" class="muted">本地检测 BlueStacks 安装与实例状态</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="path-field" title="当前配置文件">
+            <svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-folder"></use></svg>
+            <input id="config-path" type="text" placeholder="选择或输入 bluestacks.conf 路径" />
+          </div>
+          <button class="btn ghost" id="btn-refresh" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-refresh"></use></svg><span>刷新</span></button>
+          <button class="btn icon-only" id="btn-theme" type="button" title="切换暗色/亮色"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-moon"></use></svg></button>
+        </div>
+      </header>
+
+      <section id="view-dashboard" class="view active">
+        <div class="card-grid stat-grid">
+          <article class="card stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-instances"></use></svg></div><div><div class="stat-label">检测到的实例</div><div class="stat-value" id="stat-instances">0</div><div class="stat-sub" id="stat-instances-sub">等待检测</div></div></article>
+          <article class="card stat-card"><div class="stat-icon teal"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-root"></use></svg></div><div><div class="stat-label">Root 配置</div><div class="stat-value" id="stat-root">0</div><div class="stat-sub" id="stat-root-sub">未启用</div></div></article>
+          <article class="card stat-card"><div class="stat-icon amber"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-bolt"></use></svg></div><div><div class="stat-label">运行中</div><div class="stat-value" id="stat-running">0</div><div class="stat-sub" id="stat-running-sub">未检测到进程</div></div></article>
+          <article class="card stat-card"><div class="stat-icon purple"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-backup"></use></svg></div><div><div class="stat-label">备份</div><div class="stat-value" id="stat-backups">0</div><div class="stat-sub" id="stat-backups-sub">未创建备份</div></div></article>
+        </div>
+        <div class="split-grid">
+          <article class="card">
+            <div class="card-head"><h2>安装信息</h2><span class="badge neutral" id="installation-badge">检测中</span></div>
+            <div id="installation-detail" class="detail-list"></div>
+          </article>
+          <article class="card">
+            <div class="card-head"><h2>下一步</h2><button class="btn ghost small" id="btn-open-preflight" type="button">查看检查</button></div>
+            <div class="next-list">
+              <div class="next-item"><span class="next-dot"></span>检测实例并确认配置文件路径</div>
+              <div class="next-item"><span class="next-dot"></span>修改前运行安全检查，避免运行中写入</div>
+              <div class="next-item"><span class="next-dot"></span>每次修改前自动创建备份</div>
+              <div class="next-item"><span class="next-dot"></span>Root 修改后自行验证应用内权限</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="view-instances" class="view">
+        <article class="card toolbar-card">
+          <div class="toolbar-row">
+            <label class="check-all"><input type="checkbox" id="check-all" /><span>全选</span></label>
+            <span class="muted" id="selected-count">已选择 0 个实例</span>
+          </div>
+          <div class="button-row">
+            <button class="btn primary" id="btn-enable-root" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-root"></use></svg><span>一键开启 Root</span></button>
+            <button class="btn secondary" id="btn-disable-root" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-root"></use></svg><span>一键关闭 Root</span></button>
+            <button class="btn accent" id="btn-random-device" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-refresh"></use></svg><span>随机机型</span></button>
+            <button class="btn ghost" id="btn-edit-device" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-device"></use></svg><span>修改机型</span></button>
+          </div>
+        </article>
+        <div class="card-grid instance-grid" id="instance-grid"></div>
+      </section>
+
+      <section id="view-device" class="view">
+        <div class="device-layout">
+          <article class="card">
+            <div class="card-head"><h2>机型设置</h2><span class="badge neutral" id="device-selected-badge">未选择实例</span></div>
+            <form id="device-form" class="form-grid">
+              <label class="field span-2">配置文件<input id="device-config-path" type="text" placeholder="bluestacks.conf 路径" /></label>
+              <label class="field span-2">Profile Code<input id="device-profile-code" list="profile-code-options" type="text" placeholder="可手动填写" /><datalist id="profile-code-options"></datalist></label>
+              <label class="field span-2">Manufacturer<input id="device-manufacturer" type="text" placeholder="例如 samsung" /></label>
+              <label class="field span-2">Brand<input id="device-brand" type="text" placeholder="例如 Samsung" /></label>
+              <label class="field span-2">Model<input id="device-model" type="text" placeholder="例如 Galaxy S23" /></label>
+              <label class="field">宽度<input id="device-width" type="number" min="320" max="7680" step="1" /></label>
+              <label class="field">高度<input id="device-height" type="number" min="320" max="7680" step="1" /></label>
+              <label class="field">DPI<input id="device-dpi" type="number" min="80" max="960" step="1" /></label>
+              <div class="form-actions span-2">
+                <button class="btn primary" id="btn-apply-device" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-check"></use></svg><span>应用到所选实例</span></button>
+                <button class="btn ghost" id="btn-random-form-device" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-refresh"></use></svg><span>随机生成</span></button>
+                <button class="btn ghost" id="btn-clear-device" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-close"></use></svg><span>清空</span></button>
+              </div>
+            </form>
+          </article>
+          <article class="card preset-card">
+            <div class="card-head"><h2>内置机型</h2><button class="btn ghost small" id="btn-reload-presets" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-refresh"></use></svg><span>刷新</span></button></div>
+            <div class="preset-grid" id="preset-grid"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="view-preflight" class="view">
+        <article class="card">
+          <div class="card-head"><h2>修改前检查</h2><button class="btn ghost small" id="btn-run-preflight" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-refresh"></use></svg><span>运行检查</span></button></div>
+          <div class="card-grid checks-grid" id="preflight-grid"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><h2>提示与警告</h2></div>
+          <div id="preflight-warnings" class="warning-list"></div>
+        </article>
+      </section>
+
+      <section id="view-backups" class="view">
+        <article class="card">
+          <div class="card-head"><h2>配置备份</h2><button class="btn primary" id="btn-create-backup" type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-download"></use></svg><span>立即备份</span></button></div>
+          <div id="backup-list" class="backup-list"></div>
+        </article>
+      </section>
+
+      <section id="view-settings" class="view">
+        <div class="card-grid settings-grid">
+          <article class="card">
+            <div class="card-head"><h2>本地访问令牌</h2></div>
+            <p class="muted">界面通过本机 API 修改配置。首次使用时可设置令牌，之后每次请求都会校验。</p>
+            <label class="field">访问令牌<input id="token-input" type="password" placeholder="设置本地令牌" /></label>
+            <div class="button-row"><button class="btn primary" id="btn-save-token" type="button"><span>保存令牌</span></button></div>
+          </article>
+          <article class="card">
+            <div class="card-head"><h2>运行环境</h2></div>
+            <div id="platform-detail" class="detail-list"></div>
+          </article>
+          <article class="card">
+            <div class="card-head"><h2>配置文件</h2></div>
+            <p class="muted">支持 Windows 注册表检测。也支持手动指定 portable/demo 配置路径。</p>
+            <label class="field">路径<input id="settings-config-path" type="text" placeholder="C:\ProgramData\BlueStacks_nxt\bluestacks.conf" /></label>
+            <div class="button-row"><button class="btn secondary" id="btn-save-config-path" type="button"><span>保存路径</span></button><button class="btn ghost" id="btn-open-instances" type="button"><span>查看实例</span></button></div>
+          </article>
+          <article class="card">
+            <div class="card-head"><h2>操作记录</h2></div>
+            <div id="history-list" class="history-list"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <div class="modal-head"><h2 id="modal-title">确认</h2><button class="btn icon-only ghost" data-close type="button"><svg viewBox="0 0 24 24" class="icon"><use href="icons.svg#i-close"></use></svg></button></div>
+      <div id="modal-body" class="modal-body"></div>
+      <div class="modal-foot"><button class="btn ghost" id="modal-cancel" type="button">取消</button><button class="btn primary" id="modal-confirm" type="button">确认</button></div>
+    </div>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "pyinstaller>=6" "pywebview>=5,<7"
+
+      - name: Build one-file EXE
+        shell: pwsh
+        run: |
+          pyinstaller --noconfirm --clean --onefile --windowed --name BlueStacksManager `
+            --icon assets/icon.ico `
+            --add-data "bluestacks_manager/assets;bluestacks_manager/assets" `
+            --hidden-import pywebview `
+            --hidden-import pywebview.gui `
+            --collect-submodules pywebview `
+            --collect-data pywebview `
+            run_gui.py
+
+      - name: Add Chinese product name
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item dist/BlueStacksManager.exe "dist/蓝叠国际版管理器.exe" -Force
+          Copy-Item dist/BlueStacksManager.exe "dist/BlueStacksManager.exe" -Force
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bluestacks-manager-windows
+          path: |
+            dist/BlueStacksManager.exe
+            dist/蓝叠国际版管理器.exe
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          $releaseTag = "v1.0.0"
+          $asset = "dist/蓝叠国际版管理器.exe"
+          gh release view $releaseTag --json tagName --jq .tagName 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $releaseTag --title "蓝叠国际版管理器 $releaseTag" --latest --notes-file releases/README.md --asset $asset
+          } else {
+            gh release upload $releaseTag --asset $asset
+          }
