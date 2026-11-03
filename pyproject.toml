@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bluestacks-manager"
+version = "1.0.0"
+description = "蓝叠国际版管理器：本地化 BlueStacks 5 实例检测、Root 开关、机型修改、备份与安全检查。"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "elysianki4225-png"}]
+keywords = ["BlueStacks", "emulator", "root", "device-profile", "windows"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Topic :: System :: Hardware",
+]
+dependencies = [
+  "pywebview>=5.0,<7",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7",
+  "build>=1.0",
+]
+
+[project.scripts]
+bluestacks-manager = "bluestacks_manager.cli:main"
+
+[project.gui-scripts]
+bluestacks-manager-gui = "bluestacks_manager.app:main"
+
+[tool.setuptools]
+packages = ["bluestacks_manager", "bluestacks_manager.assets"]
+
+[tool.setuptools.package-data]
+bluestacks_manager = ["assets/*"]
+"bluestacks_manager.assets" = ["*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
